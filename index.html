@@ -87,21 +87,36 @@ label{
     margin-bottom:6px;
 }
 
+/* FIXED INPUT + SELECT */
 input, select{
     width:100%;
     height:50px;
     margin-bottom:16px;
     border-radius:10px;
     border:1px solid rgba(255,255,255,0.12);
-    background:rgba(255,255,255,0.03);
+
+    background:#0f172a; /* FIX: dark solid background */
     color:white;
+
     padding:0 12px;
     outline:none;
     font-size:15px;
+
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
 }
 
+/* FIX: dropdown options */
+option{
+    background:#0f172a;
+    color:white;
+}
+
+/* focus */
 input:focus, select:focus{
     border-color:#3b82f6;
+    box-shadow:0 0 0 3px rgba(59,130,246,0.15);
 }
 
 /* BUTTON */
