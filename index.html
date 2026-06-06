@@ -1,1 +1,332 @@
+```html
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>מצא עורך דין מתאים</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Heebo',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:#eef4ff;
+    overflow-x:hidden;
+}
+
+.wrapper{
+    min-height:100vh;
+    display:flex;
+}
+
+/* LEFT SIDE */
+
+.hero{
+    flex:1.2;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+}
+
+.hero img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.hero-overlay{
+    position:absolute;
+    inset:0;
+
+    background:
+    linear-gradient(
+        90deg,
+        rgba(0,0,0,0.15),
+        rgba(0,0,0,0)
+    );
+}
+
+.hero-text{
+    position:absolute;
+    bottom:60px;
+    left:60px;
+    color:white;
+    max-width:500px;
+}
+
+.hero-text h2{
+    font-size:48px;
+    font-weight:800;
+    margin-bottom:15px;
+}
+
+.hero-text p{
+    font-size:20px;
+    line-height:1.6;
+}
+
+/* RIGHT SIDE */
+
+.form-section{
+    flex:0.9;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px;
+}
+
+.form-box{
+
+    width:100%;
+    max-width:520px;
+
+    background:rgba(255,255,255,0.78);
+
+    backdrop-filter:blur(18px);
+
+    border:1px solid rgba(255,255,255,0.4);
+
+    border-radius:28px;
+
+    padding:40px;
+
+    box-shadow:
+    0 25px 60px rgba(0,0,0,0.12);
+}
+
+.badge{
+    display:inline-block;
+    background:#0d6efd;
+    color:white;
+    padding:8px 16px;
+    border-radius:999px;
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+h1{
+    font-size:40px;
+    margin-bottom:15px;
+    color:#111827;
+}
+
+.subtitle{
+    color:#6b7280;
+    font-size:18px;
+    margin-bottom:30px;
+}
+
+.form-group{
+    margin-bottom:18px;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:700;
+    color:#1f2937;
+}
+
+input,
+select{
+    width:100%;
+    height:58px;
+    border-radius:14px;
+    border:1px solid #d9d9d9;
+    padding:0 16px;
+    font-size:16px;
+    background:white;
+    outline:none;
+    transition:.3s;
+}
+
+input:focus,
+select:focus{
+    border-color:#0d6efd;
+    box-shadow:0 0 0 4px rgba(13,110,253,.12);
+}
+
+button{
+    width:100%;
+    height:62px;
+    border:none;
+    border-radius:14px;
+    background:#0d6efd;
+    color:white;
+    font-size:18px;
+    font-weight:800;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+.note{
+    margin-top:15px;
+    text-align:center;
+    color:#6b7280;
+    font-size:14px;
+}
+
+@media(max-width:1000px){
+
+    .wrapper{
+        flex-direction:column;
+    }
+
+    .hero{
+        min-height:350px;
+    }
+
+    .hero-text{
+        left:30px;
+        bottom:30px;
+    }
+
+    .hero-text h2{
+        font-size:32px;
+    }
+
+    .hero-text p{
+        font-size:16px;
+    }
+
+    .form-section{
+        padding:20px;
+    }
+
+    h1{
+        font-size:32px;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+    <div class="hero">
+
+        <!-- Replace with your AI generated anime image -->
+        <img src="anime-lawyer-hero.jpg" alt="זקוק לעורך דין">
+
+        <div class="hero-overlay"></div>
+
+        <div class="hero-text">
+            <h2>
+                טובעים בניירת?
+            </h2>
+
+            <p>
+                אל תתמודדו לבד. מצאו את עורך הדין המתאים ביותר
+                וקבלו סיוע מקצועי במהירות.
+            </p>
+        </div>
+
+    </div>
+
+    <div class="form-section">
+
+        <div class="form-box">
+
+            <div class="badge">
+                התאמה מהירה לעורך דין
+            </div>
+
+            <h1>
+                צריכים עורך דין?
+            </h1>
+
+            <p class="subtitle">
+                מלאו את הפרטים ונחזור אליכם בהקדם.
+            </p>
+
+            <form>
+
+                <div class="form-group">
+                    <label>שם</label>
+                    <input
+                        type="text"
+                        placeholder="הכנס שם מלא"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>גיל</label>
+                    <input
+                        type="number"
+                        placeholder="הכנס גיל"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>מייל</label>
+                    <input
+                        type="email"
+                        placeholder="name@example.com"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        איזה עורך דין אתם צריכים?
+                    </label>
+
+                    <select required>
+
+                        <option value="">
+                            בחרו תחום משפטי
+                        </option>
+
+                        <option>פלילי</option>
+                        <option>תעבורה</option>
+                        <option>גירושין ומשפחה</option>
+                        <option>נדל"ן</option>
+                        <option>דיני עבודה</option>
+                        <option>נזיקין</option>
+                        <option>ביטוח לאומי</option>
+                        <option>הוצאה לפועל</option>
+                        <option>חדלות פירעון / פשיטת רגל</option>
+                        <option>חוזים</option>
+                        <option>מסחרי / עסקי</option>
+                        <option>הגירה ואזרחות</option>
+                        <option>אחר</option>
+
+                    </select>
+                </div>
+
+                <button type="submit">
+                    מצאו לי עורך דין
+                </button>
+
+                <div class="note">
+                    הפרטים נשמרים באופן מאובטח
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
+```
