@@ -196,5 +196,29 @@ button:hover{
 
 </div>
 
+<script>
+function saveLead(e){
+    e.preventDefault();
+
+    const form = e.target;
+
+    const lead = {
+        name: form.querySelector("input[type='text']").value.trim(),
+        age: form.querySelector("input[type='number']").value.trim(),
+        email: form.querySelector("input[type='email']").value.trim(),
+        type: form.querySelector("select").value,
+        date: new Date().toLocaleString()
+    };
+
+    let leads = JSON.parse(localStorage.getItem("leads")) || [];
+    leads.push(lead);
+    localStorage.setItem("leads", JSON.stringify(leads));
+
+    alert("נשלח בהצלחה!");
+
+    form.reset();
+}
+</script>
+
 </body>
 </html>
