@@ -1,168 +1,151 @@
+<!DOCTYPE html>
+<html lang="he" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM Dashboard</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:#0b1220;
+    color:white;
+}
+
+.container{
+    padding:30px;
+}
+
+h1{
+    margin-bottom:20px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:#111a2e;
+}
+
+th, td{
+    padding:12px;
+    border-bottom:1px solid #222;
+    text-align:left;
+}
+
+th{
+    background:#1a2440;
+}
+
+#empty{
+    margin-top:20px;
+    color:#aaa;
+}
+
+.stats{
+    margin-bottom:15px;
+    padding:10px;
+    background:#111a2e;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>CRM Leads</h1>
+
+<div class="stats" id="stats">Loading...</div>
+
+<table>
+<thead>
+<tr>
+    <th>Name</th>
+    <th>Age</th>
+    <th>Email</th>
+    <th>Type</th>
+    <th>Date</th>
+</tr>
+</thead>
+
+<tbody id="dataTable"></tbody>
+</table>
+
+<div id="empty">Loading leads...</div>
+
+</div>
+
 <script>
 
-// =============================
-// 🚀 PROFESSIONAL CRM ENGINE (FIXED)
-// =============================
+const API = "https://law-site-dkrr.onrender.com";
 
 let leads = [];
-let filteredLeads = [];
 
-// -----------------------------
-// LOAD LEADS FROM SERVER (FIXED)
-// -----------------------------
+// SAFE START
+window.onload = function(){
+    loadLeads();
+};
+
+// LOAD LEADS (FAIL SAFE)
 async function loadLeads(){
 
     try {
-        const res = await fetch("https://law-site-dkrr.onrender.com/leads");
-
-        if(!res.ok) throw new Error("Server error");
-
+        const res = await fetch(API + "/leads");
         const data = await res.json();
 
         leads = Array.isArray(data) ? data : [];
 
-        // newest first
-        leads.reverse();
-
-        filteredLeads = [...leads];
-
-        updateStats();
         render();
 
     } catch (err) {
-        console.error("Failed to load leads:", err);
-
-        const empty = document.getElementById("empty");
-        if(empty){
-            empty.style.display = "block";
-            empty.innerText = "❌ Error loading leads from server";
-        }
+        console.log("API error", err);
+        leads = [];
+        render();
     }
 }
 
-// -----------------------------
-// LEAD SCORING (HOT / WARM / COLD)
-// -----------------------------
-function getLeadScore(lead){
-
-    let score = 0;
-
-    if(lead.age >= 25 && lead.age <= 55) score += 2;
-    if(lead.type) score += 1;
-    if(lead.email) score += 1;
-
-    if(score >= 3) return "🔥 HOT";
-    if(score === 2) return "🟠 WARM";
-    return "🔵 COLD";
-}
-
-// -----------------------------
-// RENDER TABLE
-// -----------------------------
+// RENDER (NEVER CRASHES)
 function render(){
 
     const table = document.getElementById("dataTable");
     const empty = document.getElementById("empty");
-
-    if(!table || !empty) return;
+    const stats = document.getElementById("stats");
 
     table.innerHTML = "";
 
-    if(filteredLeads.length === 0){
+    if(leads.length === 0){
         empty.style.display = "block";
+        stats.innerHTML = "No leads yet";
         return;
-    } else {
-        empty.style.display = "none";
     }
 
-    filteredLeads.forEach(lead => {
+    empty.style.display = "none";
 
-        const status = getLeadScore(lead);
+    let hot = 0;
 
-        const row = `
-        <tr>
-            <td>${lead.name || ""}</td>
-            <td>${lead.age || ""}</td>
-            <td>${lead.email || ""}</td>
-            <td>${lead.type || ""}</td>
-            <td>${status}</td>
-            <td>${lead.date || ""}</td>
-        </tr>`;
+    leads.forEach(l => {
 
-        table.innerHTML += row;
-    });
-}
+        if(l.age >= 25 && l.age <= 55) hot++;
 
-// -----------------------------
-// SEARCH FUNCTION
-// -----------------------------
-function searchLeads(value){
-
-    const v = (value || "").toLowerCase();
-
-    filteredLeads = leads.filter(l =>
-        (l.name || "").toLowerCase().includes(v) ||
-        (l.email || "").toLowerCase().includes(v) ||
-        (l.type || "").toLowerCase().includes(v)
-    );
-
-    render();
-}
-
-// -----------------------------
-// STATS PANEL
-// -----------------------------
-function updateStats(){
-
-    const total = leads.length;
-    const hot = leads.filter(l => getLeadScore(l) === "🔥 HOT").length;
-
-    const statsEl = document.getElementById("stats");
-
-    if(statsEl){
-        statsEl.innerHTML = `
-            <div>📊 Total Leads: <b>${total}</b></div>
-            <div>🔥 Hot Leads: <b>${hot}</b></div>
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${l.name || ""}</td>
+            <td>${l.age || ""}</td>
+            <td>${l.email || ""}</td>
+            <td>${l.type || ""}</td>
+            <td>${l.date || ""}</td>
         `;
-    }
-}
 
-// -----------------------------
-// EXPORT CSV
-// -----------------------------
-function exportCSV(){
-
-    let csv = "שם,גיל,מייל,תחום,סטטוס,תאריך\n";
-
-    filteredLeads.forEach(l => {
-        csv += `${l.name || ""},${l.age || ""},${l.email || ""},${l.type || ""},${getLeadScore(l)},${l.date || ""}\n`;
+        table.appendChild(row);
     });
 
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "leads.csv";
-    a.click();
+    stats.innerHTML = `
+        Total Leads: ${leads.length} | Hot Leads: ${hot}
+    `;
 }
-
-// -----------------------------
-// CLEAR DATA
-// -----------------------------
-async function clearData(){
-
-    try {
-        await fetch("https://law-site-dkrr.onrender.com/clear");
-        loadLeads();
-    } catch (err) {
-        console.error("Clear failed:", err);
-    }
-}
-
-// -----------------------------
-// INIT
-// -----------------------------
-loadLeads();
 
 </script>
+
+</body>
+</html>
