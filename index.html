@@ -198,7 +198,7 @@ async function saveLead(e){
     };
 
     try {
-        const response = await fetch("https://law-site-dkrr.onrender.com/crm.html", {
+        const response = await fetch("https://law-site-dkrr.onrender.com/lead", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -213,8 +213,6 @@ async function saveLead(e){
 
     } catch (err) {
         console.log(err);
-
-        // fallback alert so you still know something failed
         alert("בעיה בשליחה - בדוק חיבור");
     }
 }
