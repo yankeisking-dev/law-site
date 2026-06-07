@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="he" dir="ltr">
+<html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRM Dashboard</title>
+<title>מערכת לידים משפטיים</title>
 
 <style>
 body{
@@ -17,36 +17,69 @@ body{
     padding:30px;
 }
 
-h1{
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
     margin-bottom:20px;
+}
+
+h1{
+    font-size:22px;
+}
+
+.stats{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.card{
+    background:#111a2e;
+    padding:10px 15px;
+    border-radius:10px;
+    font-size:14px;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
     background:#111a2e;
+    border-radius:10px;
+    overflow:hidden;
 }
 
 th, td{
     padding:12px;
     border-bottom:1px solid #222;
-    text-align:left;
+    font-size:14px;
 }
 
 th{
     background:#1a2440;
+    color:#cbd5e1;
 }
+
+tr:hover{
+    background:#16213a;
+}
+
+.badge{
+    padding:4px 8px;
+    border-radius:6px;
+    font-size:12px;
+}
+
+.hot{background:#ef4444;}
+.warm{background:#f59e0b;}
+.cold{background:#3b82f6;}
 
 #empty{
     margin-top:20px;
-    color:#aaa;
+    color:#94a3b8;
+    text-align:center;
 }
 
-.stats{
-    margin-bottom:15px;
-    padding:10px;
-    background:#111a2e;
-}
 </style>
 </head>
 
@@ -54,25 +87,28 @@ th{
 
 <div class="container">
 
-<h1>CRM Leads</h1>
+    <div class="header">
+        <h1>📊 מערכת לידים - ייעוץ משפטי</h1>
+    </div>
 
-<div class="stats" id="stats">Loading...</div>
+    <div class="stats" id="stats"></div>
 
-<table>
-<thead>
-<tr>
-    <th>Name</th>
-    <th>Age</th>
-    <th>Email</th>
-    <th>Type</th>
-    <th>Date</th>
-</tr>
-</thead>
+    <table>
+        <thead>
+            <tr>
+                <th>שם</th>
+                <th>גיל</th>
+                <th>אימייל</th>
+                <th>תחום משפטי</th>
+                <th>סטטוס</th>
+                <th>תאריך</th>
+            </tr>
+        </thead>
 
-<tbody id="dataTable"></tbody>
-</table>
+        <tbody id="dataTable"></tbody>
+    </table>
 
-<div id="empty">Loading leads...</div>
+    <div id="empty">טוען לידים...</div>
 
 </div>
 
@@ -82,12 +118,11 @@ const API = "https://law-site-dkrr.onrender.com";
 
 let leads = [];
 
-// SAFE START
-window.onload = function(){
-    loadLeads();
-};
+window.onload = () => loadLeads();
 
-// LOAD LEADS (FAIL SAFE)
+// =============================
+// LOAD LEADS
+// =============================
 async function loadLeads(){
 
     try {
@@ -99,13 +134,31 @@ async function loadLeads(){
         render();
 
     } catch (err) {
-        console.log("API error", err);
+        console.log(err);
         leads = [];
         render();
     }
 }
 
-// RENDER (NEVER CRASHES)
+// =============================
+// LEAD STATUS
+// =============================
+function getStatus(lead){
+
+    let score = 0;
+
+    if(lead.age >= 25 && lead.age <= 55) score += 2;
+    if(lead.email) score += 1;
+    if(lead.type) score += 1;
+
+    if(score >= 3) return "🔥 חם";
+    if(score === 2) return "🟠 בינוני";
+    return "🔵 קר";
+}
+
+// =============================
+// RENDER TABLE
+// =============================
 function render(){
 
     const table = document.getElementById("dataTable");
@@ -116,24 +169,30 @@ function render(){
 
     if(leads.length === 0){
         empty.style.display = "block";
-        stats.innerHTML = "No leads yet";
+        stats.innerHTML = "";
         return;
     }
 
     empty.style.display = "none";
 
-    let hot = 0;
+    let hot = 0, warm = 0, cold = 0;
 
     leads.forEach(l => {
 
-        if(l.age >= 25 && l.age <= 55) hot++;
+        const status = getStatus(l);
+
+        if(status.includes("חם")) hot++;
+        else if(status.includes("בינוני")) warm++;
+        else cold++;
 
         const row = document.createElement("tr");
+
         row.innerHTML = `
             <td>${l.name || ""}</td>
             <td>${l.age || ""}</td>
             <td>${l.email || ""}</td>
             <td>${l.type || ""}</td>
+            <td>${status}</td>
             <td>${l.date || ""}</td>
         `;
 
@@ -141,7 +200,10 @@ function render(){
     });
 
     stats.innerHTML = `
-        Total Leads: ${leads.length} | Hot Leads: ${hot}
+        <div class="card">סה״כ לידים: ${leads.length}</div>
+        <div class="card">🔥 חמים: ${hot}</div>
+        <div class="card">🟠 בינוני: ${warm}</div>
+        <div class="card">🔵 קרים: ${cold}</div>
     `;
 }
 
