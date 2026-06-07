@@ -32,6 +32,7 @@ h1{
     display:flex;
     gap:10px;
     margin-bottom:20px;
+    flex-wrap:wrap;
 }
 
 .card{
@@ -64,22 +65,11 @@ tr:hover{
     background:#16213a;
 }
 
-.badge{
-    padding:4px 8px;
-    border-radius:6px;
-    font-size:12px;
-}
-
-.hot{background:#ef4444;}
-.warm{background:#f59e0b;}
-.cold{background:#3b82f6;}
-
 #empty{
     margin-top:20px;
     color:#94a3b8;
     text-align:center;
 }
-
 </style>
 </head>
 
@@ -118,30 +108,36 @@ const API = "https://law-site-dkrr.onrender.com";
 
 let leads = [];
 
-window.onload = () => loadLeads();
+// safe start
+window.onload = loadLeads;
 
 // =============================
-// LOAD LEADS
+// LOAD LEADS (SAFE)
 // =============================
 async function loadLeads(){
 
+    const empty = document.getElementById("empty");
+
     try {
         const res = await fetch(API + "/leads");
+
+        if(!res.ok) throw new Error("API error");
+
         const data = await res.json();
 
         leads = Array.isArray(data) ? data : [];
 
-        render();
-
     } catch (err) {
-        console.log(err);
+        console.log("LOAD ERROR:", err);
         leads = [];
-        render();
+        empty.innerText = "⚠️ שגיאה בטעינת נתונים מהשרת";
     }
+
+    render();
 }
 
 // =============================
-// LEAD STATUS
+// STATUS CALC
 // =============================
 function getStatus(lead){
 
@@ -157,7 +153,7 @@ function getStatus(lead){
 }
 
 // =============================
-// RENDER TABLE
+// RENDER (SAFE)
 // =============================
 function render(){
 
@@ -167,7 +163,7 @@ function render(){
 
     table.innerHTML = "";
 
-    if(leads.length === 0){
+    if(!leads || leads.length === 0){
         empty.style.display = "block";
         stats.innerHTML = "";
         return;
@@ -181,19 +177,19 @@ function render(){
 
         const status = getStatus(l);
 
-        if(status.includes("חם")) hot++;
-        else if(status.includes("בינוני")) warm++;
+        if(status === "🔥 חם") hot++;
+        else if(status === "🟠 בינוני") warm++;
         else cold++;
 
         const row = document.createElement("tr");
 
         row.innerHTML = `
-            <td>${l.name || ""}</td>
-            <td>${l.age || ""}</td>
-            <td>${l.email || ""}</td>
-            <td>${l.type || ""}</td>
+            <td>${l.name || "-"}</td>
+            <td>${l.age || "-"}</td>
+            <td>${l.email || "-"}</td>
+            <td>${l.type || "-"}</td>
             <td>${status}</td>
-            <td>${l.date || ""}</td>
+            <td>${l.date ? new Date(l.date).toLocaleString() : "-"}</td>
         `;
 
         table.appendChild(row);
