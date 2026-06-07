@@ -1,14 +1,27 @@
 <script>
 
-// 🚨 NOW DATA COMES FROM REAL CRM SERVER (NOT LOCAL STORAGE)
-let leads = [];
+// =============================
+// 🚀 PROFESSIONAL CRM ENGINE
+// =============================
 
-// LOAD DATA FROM SERVER
+let leads = [];
+let filteredLeads = [];
+
+// -----------------------------
+// LOAD LEADS FROM SERVER
+// -----------------------------
 async function loadLeads(){
 
     try {
-        const res = await fetch("http://localhost:3000/leads");
+        const res = await fetch("https://law-site-dkrr.onrender.com/crm.html");
         leads = await res.json();
+
+        // newest first
+        leads.reverse();
+
+        filteredLeads = [...leads];
+
+        updateStats();
         render();
 
     } catch (err) {
@@ -16,39 +29,101 @@ async function loadLeads(){
     }
 }
 
+// -----------------------------
+// LEAD SCORING (HOT / WARM / COLD)
+// -----------------------------
+function getLeadScore(lead){
+
+    let score = 0;
+
+    if(lead.age >= 25 && lead.age <= 55) score += 2;
+    if(lead.type) score += 1;
+    if(lead.email) score += 1;
+
+    // simple heuristic
+    if(score >= 3) return "🔥 HOT";
+    if(score === 2) return "🟠 WARM";
+    return "🔵 COLD";
+}
+
+// -----------------------------
+// RENDER TABLE
+// -----------------------------
 function render(){
+
     const table = document.getElementById("dataTable");
     const empty = document.getElementById("empty");
 
     table.innerHTML = "";
 
-    if(leads.length === 0){
+    if(filteredLeads.length === 0){
         empty.style.display = "block";
         return;
     } else {
         empty.style.display = "none";
     }
 
-    leads.forEach(lead => {
+    filteredLeads.forEach(lead => {
+
+        const status = getLeadScore(lead);
+
         const row = `
         <tr>
             <td>${lead.name || ""}</td>
             <td>${lead.age || ""}</td>
             <td>${lead.email || ""}</td>
             <td>${lead.type || ""}</td>
+            <td>${status}</td>
             <td>${lead.date || ""}</td>
         </tr>`;
+
         table.innerHTML += row;
     });
 }
 
-// EXPORT CSV (NOW FROM SERVER DATA)
+// -----------------------------
+// SEARCH FUNCTION
+// -----------------------------
+function searchLeads(value){
+
+    const v = value.toLowerCase();
+
+    filteredLeads = leads.filter(l =>
+        (l.name || "").toLowerCase().includes(v) ||
+        (l.email || "").toLowerCase().includes(v) ||
+        (l.type || "").toLowerCase().includes(v)
+    );
+
+    render();
+}
+
+// -----------------------------
+// STATS PANEL
+// -----------------------------
+function updateStats(){
+
+    const total = leads.length;
+    const hot = leads.filter(l => getLeadScore(l) === "🔥 HOT").length;
+
+    const statsEl = document.getElementById("stats");
+
+    if(statsEl){
+        statsEl.innerHTML = `
+            <div>📊 Total Leads: <b>${total}</b></div>
+            <div>🔥 Hot Leads: <b>${hot}</b></div>
+        `;
+    }
+}
+
+// -----------------------------
+// EXPORT CSV
+// -----------------------------
 function exportCSV(){
 
-    let csv = "שם,גיל,מייל,תחום,תאריך\n";
+    let csv = "שם,גיל,מייל,תחום,סטטוס,תאריך\n";
 
-    leads.forEach(l => {
-        csv += `${l.name || ""},${l.age || ""},${l.email || ""},${l.type || ""},${l.date || ""}\n`;
+    filteredLeads.forEach(l => {
+        csv += `${l.name || ""},${l.age || ""},${l.email || ""},${l.type || ""},${getLeadScore(l)},${l.date || ""}\n`;
     });
 
     const blob = new Blob([csv], { type: "text/csv" });
@@ -60,15 +135,22 @@ function exportCSV(){
     a.click();
 }
 
-// CLEAR DATA ON SERVER
+// -----------------------------
+// CLEAR DATA
+// -----------------------------
 async function clearData(){
+
     if(confirm("למחוק את כל הלידים?")){
-        await fetch("http://localhost:3000/clear");
+
+        await fetch("https://YOUR-RENDER-URL.onrender.com/clear");
+
         loadLeads();
     }
 }
 
-// AUTO LOAD
+// -----------------------------
+// INIT
+// -----------------------------
 loadLeads();
 
 </script>
