@@ -8,16 +8,33 @@ app.use(cors({ origin: "*" }));
 
 let leads = [];
 
-// SAVE LEAD (from index.html)
-app.post("/lead", (req, res) => {
-    leads.push(req.body);
-    res.json({ ok: true });
+// Homepage
+app.get("/", (req, res) => {
+    res.send("CRM Server Running ✅");
 });
 
-// SEND LEADS (to crm.html)
+// Save Lead
+app.post("/lead", (req, res) => {
+
+    const lead = {
+        ...req.body,
+        date: new Date().toISOString()
+    };
+
+    leads.unshift(lead);
+
+    res.json({
+        success: true
+    });
+});
+
+// Get Leads
 app.get("/leads", (req, res) => {
     res.json(leads);
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server running"));
+
+app.listen(PORT, () => {
+    console.log("Server running");
+});
