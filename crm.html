@@ -1,161 +1,20 @@
-<!DOCTYPE html>
-<html lang="he" dir="ltr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>CRM Dashboard</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-<style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Inter',sans-serif;
-}
-
-body{
-    background:#0b1220;
-    color:white;
-}
-
-/* LAYOUT */
-.container{
-    max-width:1200px;
-    margin:0 auto;
-    padding:40px;
-}
-
-.header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:30px;
-}
-
-h1{
-    font-size:28px;
-    font-weight:800;
-}
-
-/* BUTTONS */
-.btn{
-    padding:10px 16px;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
-    font-weight:600;
-}
-
-.export{
-    background:#22c55e;
-    color:white;
-}
-
-.clear{
-    background:#ef4444;
-    color:white;
-    margin-right:10px;
-}
-
-/* TABLE */
-.table-wrapper{
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.1);
-    border-radius:16px;
-    overflow:hidden;
-    backdrop-filter:blur(10px);
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th, td{
-    padding:14px;
-    text-align:right;
-    border-bottom:1px solid rgba(255,255,255,0.08);
-    font-size:14px;
-}
-
-th{
-    background:rgba(255,255,255,0.06);
-    font-weight:700;
-    color:#cbd5e1;
-}
-
-tr:hover{
-    background:rgba(255,255,255,0.04);
-}
-
-/* EMPTY STATE */
-.empty{
-    text-align:center;
-    padding:60px;
-    color:#94a3b8;
-}
-
-/* RESPONSIVE */
-@media(max-width:768px){
-    .container{
-        padding:20px;
-    }
-
-    th, td{
-        font-size:12px;
-        padding:10px;
-    }
-}
-
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <div class="header">
-        <h1>CRM - לידים משפטיים</h1>
-
-        <div>
-            <button class="btn clear" onclick="clearData()">נקה הכל</button>
-            <button class="btn export" onclick="exportCSV()">ייצא ל-CSV</button>
-        </div>
-    </div>
-
-    <div class="table-wrapper">
-
-        <table>
-            <thead>
-                <tr>
-                    <th>שם</th>
-                    <th>גיל</th>
-                    <th>מייל</th>
-                    <th>תחום</th>
-                    <th>תאריך</th>
-                </tr>
-            </thead>
-
-            <tbody id="dataTable">
-            </tbody>
-        </table>
-
-        <div id="empty" class="empty">
-            אין לידים עדיין
-        </div>
-
-    </div>
-
-</div>
-
 <script>
 
-// LOAD DATA
-let leads = JSON.parse(localStorage.getItem("leads")) || [];
+// 🚨 NOW DATA COMES FROM REAL CRM SERVER (NOT LOCAL STORAGE)
+let leads = [];
+
+// LOAD DATA FROM SERVER
+async function loadLeads(){
+
+    try {
+        const res = await fetch("http://localhost:3000/leads");
+        leads = await res.json();
+        render();
+
+    } catch (err) {
+        console.error("Failed to load leads:", err);
+    }
+}
 
 function render(){
     const table = document.getElementById("dataTable");
@@ -173,23 +32,23 @@ function render(){
     leads.forEach(lead => {
         const row = `
         <tr>
-            <td>${lead.name}</td>
-            <td>${lead.age}</td>
-            <td>${lead.email}</td>
-            <td>${lead.type}</td>
-            <td>${lead.date}</td>
+            <td>${lead.name || ""}</td>
+            <td>${lead.age || ""}</td>
+            <td>${lead.email || ""}</td>
+            <td>${lead.type || ""}</td>
+            <td>${lead.date || ""}</td>
         </tr>`;
         table.innerHTML += row;
     });
 }
 
-// EXPORT CSV
+// EXPORT CSV (NOW FROM SERVER DATA)
 function exportCSV(){
 
     let csv = "שם,גיל,מייל,תחום,תאריך\n";
 
     leads.forEach(l => {
-        csv += `${l.name},${l.age},${l.email},${l.type},${l.date}\n`;
+        csv += `${l.name || ""},${l.age || ""},${l.email || ""},${l.type || ""},${l.date || ""}\n`;
     });
 
     const blob = new Blob([csv], { type: "text/csv" });
@@ -201,18 +60,15 @@ function exportCSV(){
     a.click();
 }
 
-// CLEAR DATA
-function clearData(){
+// CLEAR DATA ON SERVER
+async function clearData(){
     if(confirm("למחוק את כל הלידים?")){
-        localStorage.removeItem("leads");
-        leads = [];
-        render();
+        await fetch("http://localhost:3000/clear");
+        loadLeads();
     }
 }
 
-render();
+// AUTO LOAD
+loadLeads();
 
 </script>
-
-</body>
-</html>
