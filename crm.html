@@ -1,20 +1,25 @@
 <script>
 
 // =============================
-// 🚀 PROFESSIONAL CRM ENGINE
+// 🚀 PROFESSIONAL CRM ENGINE (FIXED)
 // =============================
 
 let leads = [];
 let filteredLeads = [];
 
 // -----------------------------
-// LOAD LEADS FROM SERVER
+// LOAD LEADS FROM SERVER (FIXED)
 // -----------------------------
 async function loadLeads(){
 
     try {
-        const res = await fetch("https://law-site-dkrr.onrender.com/crm.html");
-        leads = await res.json();
+        const res = await fetch("https://law-site-dkrr.onrender.com/leads");
+
+        if(!res.ok) throw new Error("Server error");
+
+        const data = await res.json();
+
+        leads = Array.isArray(data) ? data : [];
 
         // newest first
         leads.reverse();
@@ -26,6 +31,12 @@ async function loadLeads(){
 
     } catch (err) {
         console.error("Failed to load leads:", err);
+
+        const empty = document.getElementById("empty");
+        if(empty){
+            empty.style.display = "block";
+            empty.innerText = "❌ Error loading leads from server";
+        }
     }
 }
 
@@ -40,7 +51,6 @@ function getLeadScore(lead){
     if(lead.type) score += 1;
     if(lead.email) score += 1;
 
-    // simple heuristic
     if(score >= 3) return "🔥 HOT";
     if(score === 2) return "🟠 WARM";
     return "🔵 COLD";
@@ -53,6 +63,8 @@ function render(){
 
     const table = document.getElementById("dataTable");
     const empty = document.getElementById("empty");
+
+    if(!table || !empty) return;
 
     table.innerHTML = "";
 
@@ -86,7 +98,7 @@ function render(){
 // -----------------------------
 function searchLeads(value){
 
-    const v = value.toLowerCase();
+    const v = (value || "").toLowerCase();
 
     filteredLeads = leads.filter(l =>
         (l.name || "").toLowerCase().includes(v) ||
@@ -140,11 +152,11 @@ function exportCSV(){
 // -----------------------------
 async function clearData(){
 
-    if(confirm("למחוק את כל הלידים?")){
-
+    try {
         await fetch("https://law-site-dkrr.onrender.com/clear");
-
         loadLeads();
+    } catch (err) {
+        console.error("Clear failed:", err);
     }
 }
 
